@@ -8,6 +8,7 @@ import axios from "axios";
 
 function BPList() {
   const [businessPartners, setBusinessPartners] = useState([]);
+  const [businessPartner, setBusinessPartner] = useState({});
   const [modalShow, setModalShow] = useState(false);
 
   useEffect(() => {
@@ -19,6 +20,7 @@ function BPList() {
         show={modalShow}
         onHide={() => setModalShow(false)}
         onSave={handleOnSave}
+        formData={businessPartner}
       />
       <h1>Business Partner List</h1>
       <div className="container">
@@ -72,10 +74,9 @@ function BPList() {
                         <FontAwesomeIcon
                           className="btn btn-primary"
                           icon={faEdit}
-                        />{" "}
-                        <FontAwesomeIcon
-                          className="btn btn-danger"
-                          icon={faTrash}
+                          onClick={() =>
+                            handleViewBusinessPartner(businessPartner.id)
+                          }
                         />
                       </td>
                     </tr>
@@ -116,7 +117,7 @@ function BPList() {
       telephone: formData.get("Telephone"),
       contactPerson: formData.get("ContactPerson"),
     };
-    console.log("modal", modal);
+    // console.log("modal", modal);
     try {
       const res = await axios.post(
         "https://localhost:7161/api/Home/SaveBusinessPartner",
@@ -134,29 +135,35 @@ function BPList() {
       } else {
         console.log("res", res);
       }
+    } catch (error) {
+      console.error("Error: ", error);
+    }
+  }
 
-      //   const response = await fetch(
-      //     "https://localhost:7161/api/Home/SaveBusinessPartner",
-      //     {
-      //       method: "POST",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //       body: JSON.stringify(modal),
-      //     }
-      //   );
+  async function handleViewBusinessPartner(id) {
+    try {
+      const response = await axios.get(
+        `https://localhost:7161/api/Home/ViewBusinessPartner/${id}`
+      );
+      if (response.status == 200) {
+        console.log(response.data);
+        // const formData = new FormData();
+        // formData.set("Id", response.data.id);
+        // formData.set("CardCode", response.data.cardCode);
+        // formData.set("ClientId", response.data.clientId);
+        // formData.set("ClientName", response.data.clientName);
+        // formData.set("Address", response.data.address);
+        // formData.set("City", response.data.city);
+        // formData.set("Country", response.data.country);
+        // formData.set("Telephone", response.data.telephone);
+        // formData.set("ContactPerson", response.data.contactPerson);
 
-      //   if (response.ok) {
-      //     const savedPartner = await response.json();
-      //     setBusinessPartners([...businessPartners, savedPartner]); // Update list
-      //     setModalShow(false); // Close modal
-      //   } else {
-      //     console.error("Failed to save business partner");
-      //   }
+        setBusinessPartner(response.data); // Store the data in state
+        setModalShow(true);
+      }
     } catch (error) {
       console.error("Error: ", error);
     }
   }
 }
-
 export default BPList;
